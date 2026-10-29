@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 const QuoteAPP = () => {
   const [quote, setQuote] = useState({ text: 'Something very smart and deep', author: 'Quoter' });
+  const [favorites, setFavorites] = useState([]);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const fetchNewQuote = async () => {
     const url = 'https://dummyjson.com/quotes/random';
@@ -10,11 +12,23 @@ const QuoteAPP = () => {
     setQuote({ text: data.quote, author: data.author });
   };
 
+  const toggleFavorites = () => {
+    setShowFavorites(!showFavorites);
+  };
+
+  const addToFavorites = () => {
+    const isAlreadyInFavorites = favorites.some((fav) => fav.text === quote.text && fav.author === quote.author);
+
+    if (!isAlreadyInFavorites) {
+      setFavorites([...favorites, quote]);
+    }
+  };
+
   return (
     <div className="container">
       <div className="quotes-app">
         <h1 className="app-heading">Quote.</h1>
-        <i className="bx bxs-heart fav-icon"></i>
+        <i className="bx bxs-heart fav-icon" onClick={toggleFavorites}></i>
         <div className="quote">
           <i className="bx bxs-quote-alt-left left-quote"></i>
           <p className="quote-text">{quote.text}</p>
@@ -31,8 +45,34 @@ const QuoteAPP = () => {
           <button className="btn btn-new" onClick={fetchNewQuote}>
             New Quote
           </button>
-          <button className="btn btn-fav">Add to Favorites</button>
+          <button className="btn btn-fav" onClick={addToFavorites}>
+            Add to Favorites
+          </button>
         </div>
+        {showFavorites && (
+          <div className="favorites">
+            <button className="btn-close" onClick={toggleFavorites}>
+              <i className="bx bx-x"></i>
+            </button>
+            {favorites.map((favQuote, index) => (
+              <div className="fav-quote" key={index}>
+                <div
+                  className="fav-quote-delete"
+                  onClick={() => {
+                    const updatedFavorites = favorites.filter((item, i) => i !== index);
+                    setFavorites(updatedFavorites);
+                  }}
+                >
+                  <i className="bx bx-x-circle"></i>
+                </div>
+                <div className="fav-quotes-content">
+                  <div className="fav-quote-text">{favQuote.text}</div>
+                  <div className="fav-quote-author">{favQuote.author}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
